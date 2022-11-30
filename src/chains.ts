@@ -8,13 +8,14 @@ import {
   isValidSolanaAddress,
   isValidBitcoinCashAddress,
   formatBitcoinCashAddress,
-  isValidHex,
+  isValidHexWithout0xPrefix,
   isValidSolanaTx,
   toLowerCaseWithout0x,
   with0x,
   isValidTerraAddress,
   isValidTerraTx,
-  getRSKChainID
+  getRSKChainID,
+  isValidHexWith0xPrefix
 } from './common'
 
 const chains: { [key in ChainId]: Chain } = {
@@ -28,10 +29,12 @@ const chains: { [key in ChainId]: Chain } = {
     safeConfirmations: 1,
     // 0,1 blocks per minute * 180 minutes (3 hours) -> 18 blocks wait period
     txFailureTimeout: 10800000, // 3 hours in ms
+    evmCompatible: false,
+    hasTokens: false,
     // TODO: include network types in validation
     isValidAddress: (address) => !!validateBitcoinAddress(address),
     formatAddress: (address) => address,
-    isValidTransactionHash: (hash: string) => isValidHex(hash),
+    isValidTransactionHash: (hash: string) => isValidHexWithout0xPrefix(hash),
     formatTransactionHash: (hash: string) => toLowerCaseWithout0x(hash)
   },
   [ChainId.BitcoinCash]: {
@@ -44,10 +47,12 @@ const chains: { [key in ChainId]: Chain } = {
     safeConfirmations: 1,
     // ~0,1 blocks per minute * 180 minutes (3 hours) -> 18 blocks wait period
     txFailureTimeout: 10800000, // 3 hours in ms
+    evmCompatible: false,
+    hasTokens: false,
     // TODO: include network types in validation
     isValidAddress: (address) => isValidBitcoinCashAddress(address),
     formatAddress: (address) => formatBitcoinCashAddress(address),
-    isValidTransactionHash: (hash: string) => isValidHex(hash),
+    isValidTransactionHash: (hash: string) => isValidHexWithout0xPrefix(hash),
     formatTransactionHash: (hash: string) => toLowerCaseWithout0x(hash)
   },
   [ChainId.Ethereum]: {
@@ -60,9 +65,11 @@ const chains: { [key in ChainId]: Chain } = {
     safeConfirmations: 3,
     // ~4 blocks per minute * 30 minutes -> 120 blocks wait period
     txFailureTimeout: 1800000, // in ms
+    evmCompatible: true,
+    hasTokens: true,
     isValidAddress: (hexAddress: string) => isValidAddress(with0x(hexAddress)),
     formatAddress: (hexAddress: string) => toChecksumAddress(with0x(hexAddress)),
-    isValidTransactionHash: (hash: string) => isValidHex(hash),
+    isValidTransactionHash: (hash: string) => isValidHexWith0xPrefix(hash),
     formatTransactionHash: (hash: string) => toLowerCaseWithout0x(hash)
   },
   [ChainId.Rootstock]: {
@@ -75,10 +82,12 @@ const chains: { [key in ChainId]: Chain } = {
     safeConfirmations: 5,
     // ~3 blocks per minute * 30 minutes -> 90 blocks wait period
     txFailureTimeout: 1800000, // in ms
+    evmCompatible: true,
+    hasTokens: true,
     isValidAddress: (hexAddress: string) => isValidAddress(with0x(hexAddress)),
     formatAddress: (hexAddress: string, network?: string) =>
       toChecksumAddress(with0x(hexAddress), getRSKChainID(network)),
-    isValidTransactionHash: (hash: string) => isValidHex(hash),
+    isValidTransactionHash: (hash: string) => isValidHexWith0xPrefix(hash),
     formatTransactionHash: (hash: string) => toLowerCaseWithout0x(hash)
   },
   [ChainId.BinanceSmartChain]: {
@@ -91,9 +100,11 @@ const chains: { [key in ChainId]: Chain } = {
     safeConfirmations: 5,
     // ~20 blocks per minute * 10 minutes -> 200 blocks wait period
     txFailureTimeout: 600000, // in ms
+    evmCompatible: true,
+    hasTokens: true,
     isValidAddress: (hexAddress: string) => isValidAddress(with0x(hexAddress)),
     formatAddress: (hexAddress: string) => toChecksumAddress(with0x(hexAddress)),
-    isValidTransactionHash: (hash: string) => isValidHex(hash),
+    isValidTransactionHash: (hash: string) => isValidHexWith0xPrefix(hash),
     formatTransactionHash: (hash: string) => toLowerCaseWithout0x(hash)
   },
   [ChainId.Near]: {
@@ -106,6 +117,8 @@ const chains: { [key in ChainId]: Chain } = {
     safeConfirmations: 10,
     // ~50 blocks per minute * 5 minutes -> 250 blocks wait period
     txFailureTimeout: 300000, // in ms
+    evmCompatible: false,
+    hasTokens: false,
     isValidAddress: (address) => isValidNearAddress(address),
     formatAddress: (address) => address,
     isValidTransactionHash: (hash: string) => isValidNearTx(hash),
@@ -121,6 +134,8 @@ const chains: { [key in ChainId]: Chain } = {
     safeConfirmations: 31,
     // ~120 blocks per minute * 5 minutes -> 600 blocks wait period
     txFailureTimeout: 300000, // in ms
+    evmCompatible: false,
+    hasTokens: false,
     isValidAddress: (address) => isValidSolanaAddress(address),
     formatAddress: (address) => address,
     isValidTransactionHash: (hash: string) => isValidSolanaTx(hash),
@@ -136,6 +151,8 @@ const chains: { [key in ChainId]: Chain } = {
     safeConfirmations: 1,
     // ~10 blocks per minute * 15 minutes -> 150 blocks wait period
     txFailureTimeout: 900000, // in ms
+    evmCompatible: false,
+    hasTokens: true,
     isValidAddress: (address) => isValidTerraAddress(address),
     formatAddress: (address) => address,
     isValidTransactionHash: (hash: string) => isValidTerraTx(hash),
@@ -151,9 +168,11 @@ const chains: { [key in ChainId]: Chain } = {
     safeConfirmations: 5,
     // ~30 blocks per minute * 10 minutes -> 300 blocks wait period
     txFailureTimeout: 600000, // in ms
+    evmCompatible: true,
+    hasTokens: true,
     isValidAddress: (hexAddress: string) => isValidAddress(with0x(hexAddress)),
     formatAddress: (hexAddress: string) => toChecksumAddress(with0x(hexAddress)),
-    isValidTransactionHash: (hash: string) => isValidHex(hash),
+    isValidTransactionHash: (hash: string) => isValidHexWith0xPrefix(hash),
     formatTransactionHash: (hash: string) => toLowerCaseWithout0x(hash)
   },
   [ChainId.Arbitrum]: {
@@ -166,9 +185,11 @@ const chains: { [key in ChainId]: Chain } = {
     safeConfirmations: 5,
     // ~15 blocks per minute * 10 minutes -> 150 blocks wait period
     txFailureTimeout: 600000, // in ms
+    evmCompatible: true,
+    hasTokens: true,
     isValidAddress: (hexAddress: string) => isValidAddress(with0x(hexAddress)),
     formatAddress: (hexAddress: string) => toChecksumAddress(with0x(hexAddress)),
-    isValidTransactionHash: (hash: string) => isValidHex(hash),
+    isValidTransactionHash: (hash: string) => isValidHexWith0xPrefix(hash),
     formatTransactionHash: (hash: string) => toLowerCaseWithout0x(hash)
   },
   [ChainId.Fuse]: {
@@ -181,9 +202,11 @@ const chains: { [key in ChainId]: Chain } = {
     safeConfirmations: 5,
     // ~12 blocks per minute * 15 minutes -> 180 blocks wait period
     txFailureTimeout: 900000, // in ms
+    evmCompatible: true,
+    hasTokens: true,
     isValidAddress: (hexAddress: string) => isValidAddress(with0x(hexAddress)),
     formatAddress: (hexAddress: string) => toChecksumAddress(with0x(hexAddress)),
-    isValidTransactionHash: (hash: string) => isValidHex(hash),
+    isValidTransactionHash: (hash: string) => isValidHexWith0xPrefix(hash),
     formatTransactionHash: (hash: string) => toLowerCaseWithout0x(hash)
   },
   [ChainId.Avalanche]: {
@@ -196,23 +219,21 @@ const chains: { [key in ChainId]: Chain } = {
     safeConfirmations: 5,
     // ~15 blocks per minute * 10 minutes -> 150 blocks wait period
     txFailureTimeout: 600000, // in ms
+    evmCompatible: true,
+    hasTokens: true,
     isValidAddress: (hexAddress: string) => isValidAddress(with0x(hexAddress)),
     formatAddress: (hexAddress: string) => toChecksumAddress(with0x(hexAddress)),
-    isValidTransactionHash: (hash: string) => isValidHex(hash),
+    isValidTransactionHash: (hash: string) => isValidHexWith0xPrefix(hash),
     formatTransactionHash: (hash: string) => hash
   }
 }
 
 function isEthereumChain(chain: ChainId) {
-  return [
-    ChainId.BinanceSmartChain,
-    ChainId.Ethereum,
-    ChainId.Rootstock,
-    ChainId.Polygon,
-    ChainId.Avalanche,
-    ChainId.Arbitrum,
-    ChainId.Fuse
-  ].includes(chain)
+  return chains[chain].evmCompatible
 }
 
-export { chains, isEthereumChain }
+function hasTokens(chain: ChainId) {
+  return chains[chain].hasTokens
+}
+
+export { chains, isEthereumChain, hasTokens }
